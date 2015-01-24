@@ -1,6 +1,5 @@
 
 
-import com.pi4j.io.i2c.*;
 import com.pi4j.jni.I2C;
 
 import java.io.BufferedReader;
@@ -28,6 +27,7 @@ public class piLEDEngine {
 	private String sCurrentLine;
 	private int lineCount;
 	private int LEDLineCount;
+	piSender send = new piSender();
 	
 	public piLEDEngine()
 	{
@@ -57,9 +57,11 @@ public class piLEDEngine {
 		LEDLine = new ArrayList<>();
 		lineCount = 0;
 		LEDLineCount = 0;
-		
-		fd = I2C.i2cOpen("/dev/i2c-1"); // open connection
-		initialiseDisplay();
+	}
+	
+	public void useLedMatrixSpecifyFileBi(String redFile, String greenFile) throws InterruptedException
+	{
+		populateDisplayBi("LED", "both", readFromFileSpecify(redFile, "red"), readFromFileSpecify(greenFile, "green"));		
 	}
 	
 	public void resetDisplay()
@@ -85,7 +87,7 @@ public class piLEDEngine {
 	public void useLedMatrixDisplayBi () throws InterruptedException
 	{
 		clearMatrix(fd, LEDColumn); // clear led matrix for use	
-		populateDisplayBi(readFromFile("red"), readFromFile("green"));		
+		//populateDisplayBi(readFromFile("red"), readFromFile("green"));		
 	}
 	
 	
@@ -96,6 +98,56 @@ public class piLEDEngine {
 	    I2C.i2cWriteByteDirect(fd, 0x70, (byte) 0x81);
 	    I2C.i2cWriteByteDirect(fd, 0x70, (byte) 0xe0);
 	    clearMatrix(fd, LEDColumn); // clear led matrix for use
+	}
+	
+	private byte[] readFromFileSpecify(String fileName, String colour)
+	{	
+		//string list to hold values from text file
+				try {
+					BufferedReader br = new BufferedReader(new FileReader(fileName + ".txt"));
+					
+					while ((sCurrentLine = br.readLine()) != null) 
+						{
+							LEDLine.add(sCurrentLine);
+							LEDLineCount++;
+						}
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String lineA = null;
+				String lineB = null;
+				redResult = new byte[LEDLineCount+1];
+				greenResult = new byte[LEDLineCount+1];
+
+				for (lineCount=0; lineCount <LEDLineCount; lineCount++)
+				{	
+					//convert 8 letter string to 4
+					lineA = Long.toHexString(Long.parseLong(LEDLine.get(lineCount).substring(0, 4),2)); 
+					lineB = Long.toHexString(Long.parseLong(LEDLine.get(lineCount).substring(4, 8),2));
+					
+					String hold = lineA + lineB;
+					//convert string to int to byte
+					int value = Integer.parseInt(hold, 16); 
+					
+					if (colour.equals("red"))
+					{
+						redResult[lineCount] = (byte) value;
+					}
+					if (colour.equals("green"))
+					{
+						greenResult[lineCount] = (byte) value;			
+					}					
+				}
+				if (colour.equals("red"))
+				{
+					return redResult;
+				}
+				else
+				{
+					return greenResult;	
+				}				
 	}
 	
 	private byte[] readFromFile(String colour)
@@ -184,40 +236,9 @@ public class piLEDEngine {
 		}
 	}
 	
-	private void populateDisplayBi(byte[] redResult, byte[] greenResult) throws InterruptedException
+	private void populateDisplayBi(String type, String colour, byte[] redResult, byte[] greenResult) throws InterruptedException
 	{
-
-		for (int scrollCount = 0; scrollCount <LEDLineCount; scrollCount++)
-	    {
-	    	int showResult = scrollCount;
-	    	for (int columnCount = 0; columnCount <16; columnCount++)
-	    	{
-	    		if (showResult < LEDLineCount)
-	    		{
-	    			//write saved values to display RED LED
-	    			showResult++;
-	    			I2C.i2cWriteByte(fd ,0x70 ,LEDColumn[columnCount] , redResult[showResult]);
-	    			columnCount++;
-	    	}
-	    }
-
-	    	for (int scrollCount2 = 0; scrollCount2 <LEDLineCount; scrollCount2++)
-		    {
-		    	int showResult2 = scrollCount;		 
-		    	for (int columnCount = 1; columnCount <16; columnCount++)
-		    	{
-		    		if (showResult < LEDLineCount)
-		    		{
-		    			//write saved values to display GREEN LED
-		    			showResult++;
-		    			I2C.i2cWriteByte(fd ,0x70 ,LEDColumn[columnCount] , greenResult[showResult]);
-		    			columnCount++;
-		    		}
-		    }
-	    	//sleep so scrolling can be seen
-		    Thread.sleep(200);
-		    }
-		}
+		send.piSend(type, colour, redResult, greenResult, LEDLineCount);
 	}
 	
 	private static void clearMatrix(int fd, int[] LEDColumn)
