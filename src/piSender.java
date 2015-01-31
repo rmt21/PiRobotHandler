@@ -2,17 +2,26 @@
 import java.net.*;
 import java.io.*;
 
+import javax.swing.JTextField;
+
 public class piSender
-{
-   public void piSend (String type, String output1, byte[] output2, byte[] output3, int count)
+{	
+	JTextField console;
+	public piSender(JTextField ipAddress)
+	{
+		this.console = ipAddress;
+	}
+	
+	
+   public void piSend (String type, String output1, byte[] output2, byte[] output3, int count, String ipAddress)
    {
-      String serverName = "192.168.0.8";
+      String serverName = ipAddress;
       int port = Integer.parseInt("6066");
       try
       {
-         System.out.println("Connecting to " + serverName + " on port " + port);
+         console.setText("Connecting to " + serverName + " on port " + port);//System.out.println("Connecting to " + serverName + " on port " + port);
          Socket client = new Socket(serverName, port);
-         System.out.println("connected..sending...led" + client.getRemoteSocketAddress());
+         console.setText("connected..sending...led" + client.getRemoteSocketAddress());//System.out.println("connected..sending...led" + client.getRemoteSocketAddress());
          OutputStream outToServer = client.getOutputStream();
          DataOutputStream out = new DataOutputStream(outToServer);
          
@@ -32,18 +41,20 @@ public class piSender
       }catch(IOException e)
       {
          e.printStackTrace();
+			console.setText(e.toString());
+
       }
    }
    
-   public void piSendSpeechMotor (String type, String output1)
+   public void piSendSpeechMotor (String type, String output1, String ipAddress)
    {
-      String serverName = "192.168.0.8";
+      String serverName = ipAddress;
       int port = Integer.parseInt("6066");
       try
       {
-         System.out.println("Connecting to " + serverName + " on port " + port);
-         Socket client = new Socket(serverName, port);
-         System.out.println("connected..sending..." + client.getRemoteSocketAddress());
+    	  console.setText("Connecting to " + serverName + " on port " + port);//System.out.println("Connecting to " + serverName + " on port " + port);
+          Socket client = new Socket(serverName, port);
+          console.setText("connected..sending...led" + client.getRemoteSocketAddress());//System.out.println("connected..sending...led" + client.getRemoteSocketAddress());
          OutputStream outToServer = client.getOutputStream();
          DataOutputStream out = new DataOutputStream(outToServer);
          
@@ -58,19 +69,21 @@ public class piSender
       }catch(IOException e)
       {
          e.printStackTrace();
+			console.setText(e.toString());
+
       }
    }
    
-   public void piSendServo (String type, String output1, String output2)
+   public void piSendServo (String type, String output1, String output2, String ipAddress)
    {
 	   //type=servo, output1=pan,tilt output2=direction
-      String serverName = "192.168.0.8";
+      String serverName = ipAddress;
       int port = Integer.parseInt("6066");
       try
       {
-         System.out.println("Connecting to " + serverName + " on port " + port);
-         Socket client = new Socket(serverName, port);
-         System.out.println("connected..sending..." + client.getRemoteSocketAddress());
+    	  console.setText("Connecting to " + serverName + " on port " + port);//System.out.println("Connecting to " + serverName + " on port " + port);
+          Socket client = new Socket(serverName, port);
+          console.setText("connected..sending...led" + client.getRemoteSocketAddress());//System.out.println("connected..sending...led" + client.getRemoteSocketAddress());
          OutputStream outToServer = client.getOutputStream();
          DataOutputStream out = new DataOutputStream(outToServer);
          
@@ -86,6 +99,8 @@ public class piSender
       }catch(IOException e)
       {
          e.printStackTrace();
+			console.setText(e.toString());
+
       }
    }
 }

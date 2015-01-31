@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
 public class piLEDEngine {
@@ -19,6 +20,16 @@ public class piLEDEngine {
 	 * @throws InterruptedException 
 	 */
 
+	piSender send;
+	String ipAddress;
+	JTextField console;
+	public piLEDEngine(JTextField console, String ipAddress)
+	{
+		send = new piSender(console);
+		this.ipAddress = ipAddress;
+		this.console = console;
+	}
+	
 	private int[] LEDColumn;
 	private byte[] greenResult;
 	private byte[] redResult;
@@ -27,7 +38,6 @@ public class piLEDEngine {
 	private String sCurrentLine;
 	private int lineCount;
 	private int LEDLineCount;
-	piSender send = new piSender();
 	
 	public piLEDEngine()
 	{
@@ -165,6 +175,7 @@ public class piLEDEngine {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					console.setText(e.toString());
 				}
 				String lineA = null;
 				String lineB = null;
@@ -238,7 +249,7 @@ public class piLEDEngine {
 	
 	private void populateDisplayBi(String type, String colour, byte[] redResult, byte[] greenResult) throws InterruptedException
 	{
-		send.piSend(type, colour, redResult, greenResult, LEDLineCount);
+		send.piSend(type, colour, redResult, greenResult, LEDLineCount, ipAddress);
 	}
 	
 	private static void clearMatrix(int fd, int[] LEDColumn)

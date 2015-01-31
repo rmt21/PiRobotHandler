@@ -4,9 +4,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.JTextField;
+
 public class piSpeechProcessor implements Runnable {
 	// process what speech is being passed in
-	piInterfaceHandler piInterface = new piInterfaceHandler();
+	piInterfaceHandler piInterface;
+	public piSpeechProcessor(JTextField console, String ipAddress)
+	{
+		piInterface = new piInterfaceHandler(console, ipAddress);
+	}
 
 	@Override
 	public void run() {
@@ -26,19 +32,19 @@ public class piSpeechProcessor implements Runnable {
 			//movement sends to piInterfaceHandler for action
 			if (speechToBeProcessed.get(i).toString().contains("Paul move right"))
 			{
-				piInterface.movement("right");
+				//piInterface.movement("right");
 			}
 			if (speechToBeProcessed.get(i).toString().contains("Paul move left"))
 			{
-				piInterface.movement("left");
+				//piInterface.movement("left");
 			}
 			if (speechToBeProcessed.get(i).toString().contains("Paul move forward"))
 			{
-				piInterface.movement("forward");
+				//piInterface.movement("forward");
 			}
 			if (speechToBeProcessed.get(i).toString().contains("Paul move back"))
 			{
-				piInterface.movement("back");
+				//piInterface.movement("back");
 			}
 		}
 		System.out.println("Speech set processed");
